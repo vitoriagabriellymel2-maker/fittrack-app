@@ -1,13 +1,12 @@
 function TreinoCard({ nome, grupo, series, reps, concluido, onToggle, onRemover }) {
   return (
     <article
-      className={`rounded-xl shadow-md p-5 hover:shadow-lg transition-shadow
-        border border-slate-100 bg-white ${
-          concluido ? "opacity-60" : ""
-        }`}
+      className={`rounded-xl shadow-md p-5 hover:shadow-lg transition-shadow border ${
+        concluido ? "bg-slate-50 border-slate-200" : "bg-white border-slate-100"
+      }`}
     >
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs uppercase tracking-wide text-slate-400 font-semibold">
+        <span className="text-xs uppercase tracking-wide text-slate-500 font-semibold">
           {grupo}
         </span>
         <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-700">
@@ -16,8 +15,8 @@ function TreinoCard({ nome, grupo, series, reps, concluido, onToggle, onRemover 
       </div>
 
       <h2
-        className={`text-lg font-semibold text-slate-800 mb-4 ${
-          concluido ? "line-through" : ""
+        className={`text-lg font-semibold mb-4 ${
+          concluido ? "text-slate-500 line-through" : "text-slate-800"
         }`}
       >
         {nome}
@@ -29,14 +28,15 @@ function TreinoCard({ nome, grupo, series, reps, concluido, onToggle, onRemover 
             type="checkbox"
             checked={concluido}
             onChange={onToggle}
-            className="w-4 h-4 accent-emerald-700"
+            className="w-4 h-4 accent-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-1"
           />
           Feito
         </label>
 
         <button
           onClick={onRemover}
-          className="text-xs text-red-500 hover:text-red-700 font-semibold"
+          aria-label={`Remover treino: ${nome}`}
+          className="text-xs text-red-600 hover:text-red-800 font-semibold focus:outline-none focus:ring-2 focus:ring-red-600 rounded px-1"
         >
           Remover
         </button>
