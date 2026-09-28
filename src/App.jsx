@@ -1,60 +1,75 @@
+import { useState, useEffect } from "react";
 import Header from "./components/Header";
-import Footer from "./components/Footer";
-import WorkoutCard from "./components/WorkoutCard";
+import TreinoCard from "./components/TreinoCard";
+import TreinoForm from "./components/TreinoForm";
 
-const treinos = [
-  {
-    id: 1,
-    titulo: "Treino de Pernas",
-    descricao: "Agachamento, leg press e afundo.",
-    categoria: "Força",
-    duracao: "50 min",
-  },
-  {
-    id: 2,
-    titulo: "Corrida Intervalada",
-    descricao: "Tiros de 400m com descanso ativo.",
-    categoria: "Cardio",
-    duracao: "30 min",
-  },
-  {
-    id: 3,
-    titulo: "Yoga Flow",
-    descricao: "Sequência de alongamento e respiração.",
-    categoria: "Mobilidade",
-    duracao: "25 min",
-  },
-  {
-    id: 4,
-    titulo: "Treino de Costas",
-    descricao: "Puxada, remada baixa e barra fixa.",
-    categoria: "Força",
-    duracao: "45 min",
-  },
+const TREINOS_INICIAIS = [
+  { id: 1, nome: "Supino reto", grupo: "Peito", series: 4, reps: 10, concluido: false },
+  { id: 2, nome: "Agachamento", grupo: "Pernas", series: 4, reps: 12, concluido: true },
+  { id: 3, nome: "Corrida leve", grupo: "Cardio", series: 1, reps: 1, concluido: false },
+];
+
+const FILTROS = [
+  { valor: "todos", rotulo: "Todos" },
+  { valor: "pendentes", rotulo: "Pendentes" },
+  { valor: "feitos", rotulo: "Feitos" },
 ];
 
 function App() {
+  const [treinos, setTreinos] = useState(() => {
+    const salvos = localStorage.getItem("fittrack-treinos");
+    return salvos ? JSON.parse(salvos) : TREINOS_INICIAIS;
+  });
+  const [filtro, setFiltro] = useState("todos");
+
+  useEffect(() => {
+    localStorage.setItem("fittrack-treinos", JSON.stringify(treinos));
+  }, [treinos]);
+
+  function adicionarTreino(novo) {
+    setTreinos((atual) => [...atual, { ...novo, id: Date.now(), concluido: false }]);
+  }
+  function alternarConcluido(id) {
+    setTreinos((atual) => atual.map((t) => (t.id === id ? { ...t, concluido: !t.concluido } : t)));
+  }
+  function removerTreino(id) {
+    setTreinos((atual) => atual.filter((t) => t.id !== id));
+  }
+
+  const treinosFiltrados = treinos.filter((t) => {
+    if (filtro === "pendentes") return !t.concluido;
+    if (filtro === "feitos") return t.concluido;
+    return true;
+  });
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-slate-100">
       <Header />
-
-      <main className="flex-1 max-w-5xl mx-auto px-4 py-8 w-full">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {treinos.map((treino) => (
-            <WorkoutCard
-              key={treino.id}
-              titulo={treino.titulo}
-              descricao={treino.descricao}
-              categoria={treino.categoria}
-              duracao={treino.duracao}
-            />
-          ))}
+      <main className="max-w-4xl mx-auto px-6 py-10">
+        <TreinoForm onAdicionar={adicionarTreino} />
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-slate-700">Meus treinos ({treinosFiltrados.length})</h2>
+          <div className="flex gap-2">
+            {FILTROS.map((op) => (
+              <button key={op.valor} onClick={() => setFiltro(op.valor)}
+                className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors ${
+                  filtro === op.valor ? "bg-emerald-700 text-white" : "bg-white text-slate-600 hover:bg-slate-200"
+                }`}>
+                {op.rotulo}
+              </button>
+            ))}
+          </div>
         </div>
+        <section className="grid gap-4 sm:grid-cols-2">
+          {treinosFiltrados.map((t) => (
+            <TreinoCard key={t.id} nome={t.nome} grupo={t.grupo} series={t.series} reps={t.reps}
+              concluido={t.concluido}
+              onToggle={() => alternarConcluido(t.id)}
+              onRemover={() => removerTreino(t.id)} />
+          ))}
+        </section>
       </main>
-
-      <Footer />
     </div>
   );
 }
-
 export default App;
